@@ -1,1 +1,1 @@
-influx query 'from(bucket: "Bitcoin") |> range(start: -1h)'
+influx query 'from(bucket: "Bitcoin") |> range(start: -100h)'

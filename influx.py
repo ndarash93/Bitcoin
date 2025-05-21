@@ -32,12 +32,14 @@ class Flux:
     else:
       print(f"Wrote balance for {address} to InfluxDB")
 
-# Usage example
-flux = Flux(
-  influx_url=f"http://{HOST}:8086",
-  org=ORG,
-  bucket=BUCKET,
-  token=TOKEN
-)
 
-flux.push_to_influxdb(12345678, "bc1qyouraddress")
+if __name__ == "__main__":
+  # Usage example
+  flux = Flux(
+    influx_url=f"http://{HOST}:8086",
+    org=ORG,
+    bucket=BUCKET,
+    token=TOKEN
+  )
+
+  flux.push_to_influxdb(12345678, "bc1qyouraddress")
