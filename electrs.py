@@ -11,7 +11,8 @@ class Electrs:
     self.host = host
     self.port = port
 
-  def derive_addresses(self, zpub, gap_count=20)
+  def derive_addresses(self, zpub, gap_count=20):
+    pass
 
   def electrs_request(method):
     if params is None:
