@@ -1,7 +1,9 @@
 import socket
 import json
 import os
-from bip_utils import Bip84, Bitp44Changes
+import hashlib
+from bip_utils import Bip84, Bip84Coins, Bip44Changes
+from bech32 import decode
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -9,32 +11,41 @@ ZPUB = os.getenv("ZPUB")
 HOST = os.getenv("HOST")
 PORT = os.getenv("PORT")
 
+
 class Electrs:
-  def __init__(self, zpub, params=None, host="localhost", port=50001):
+  def __init__(self, zpub, params=[], host="localhost", port=50001):
     self.params = params
     self.host = host
     self.port = port
     self.zpub = zpub
 
   def derive_addresses(self, gap_count=20):
-    bip = Bip84.FromExtendedKey(self.zpub, Bip44Changes.CHAIN_EXT)
+    bip = Bip84.FromExtendedKey(self.zpub, Bip84Coins.BITCOIN)
+    external_chain = bip.Change(Bip44Changes.CHAIN_EXT)
     addresses = []
 
-    for i in range(gap_count):
-      address = bip_obh.AddressIndex(i).PublicKey().ToAddress()
-      addresses.append(address)
+    for i in range(20):
+      child_address = external_chain.AddressIndex(i)
+      bip44_address = child_address.PublicKey().ToAddress()
+      #print(bip44_address)
+      addresses.append(bip44_address)
 
     return addresses
 
-  def electrs_request(method):
-    if params is None:
-      params = []
+  def createAddressHash(self, address):
+    witness_version, witness_program = decode("bc", address)  # Strip 'bc1'
+    print("witness", witness_version, witness_program)
+    script_pubkey = bytes([witness_version + 0x00]) + bytes([len(witness_program)]) + bytes(witness_program)
+    scripthash = hashlib.sha256(script_pubkey).digest()[::-1].hex()  # Reverse byte order
+    print(f"Scripthash: {scripthash}")
+    return scripthash
 
+  def electrs_request(self, method="blockchain.scripthash.get_balance", scripthash=None):
     request = {
       "jsonrpc": "2.0",
       "id": 0,
       "method": method,
-      "params": self.params
+      "params": [scripthash]
     }
 
     with socket.create_connection((self.host, self.port)) as sock:
@@ -44,13 +55,14 @@ class Electrs:
 
 # Example: get the electrs server banner
 if __name__ == "__main__":
-  addresses = derive_address()
   electrs = Electrs(
     zpub=ZPUB,
     params=None,
     host=HOST,
     port=PORT
   )
-  result = electrs_request("server.banner", host=os.getenv("HOST"))
+  addresses = electrs.derive_addresses()
+  scripthash = electrs.createAddressHash(addresses[9])
+  result = electrs.electrs_request(scripthash=scripthash)
   print(result)
 
