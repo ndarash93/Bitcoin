@@ -16,9 +16,10 @@ class Flux:
     self.org = org
     self.token = token
 
-  def push_to_influxdb(self, balance_sats, address):
+  def push_to_influxdb(self, confirmed, unconfirmed, price, address):
     ts = int(time.time() * 1e9)
-    line = f"btc_balance,address={address} balance={balance_sats} {ts}"
+    address_escaped = address.replace(" ", "\ ").replace(",", "\,").replace("=", "\=")
+    line = f"btc_balance,address={address_escaped} confirmed={confirmed},unconfirmed={unconfirmed},price={price} {ts}"
     
     url = f"{self.influx_url}/api/v2/write?bucket={self.bucket}&org={self.org}&precision=ns"
     headers = {
@@ -28,10 +29,9 @@ class Flux:
 
     r = requests.post(url, headers=headers, data=line)
     if r.status_code != 204:
-      print("Failed to write to InfluxDB:", r.status_code, r.text)
+      pass
     else:
-      print(f"Wrote balance for {address} to InfluxDB")
-
+      pass
 
 if __name__ == "__main__":
   # Usage example
@@ -42,4 +42,4 @@ if __name__ == "__main__":
     token=TOKEN
   )
 
-  flux.push_to_influxdb(12345678, "bc1qyouraddress")
+  flux.push_to_influxdb(12345678, 1234, 100000, "bc1qyouraddress")

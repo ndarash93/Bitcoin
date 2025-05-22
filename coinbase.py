@@ -12,7 +12,6 @@ class Coinbase:
       price = float(data['data']['amount'])
       return price
     except Exception as e:
-      print("Error getting price:", e)
       return None
 
 if __name__ == "__main__":
