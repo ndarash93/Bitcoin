@@ -66,17 +66,13 @@ class Coinbase:
 
 if __name__ == "__main__":
   coinbase = Coinbase()
-  method = "GET"
-  #uri = "api.coinbase.com/v2/accounts"
   uri = f"api.coinbase.com/api/v3/brokerage/accounts/"
-  jwt = coinbase.build_jwt(f"{method} {uri}")
-  print(jwt)
-  response = coinbase.get_coinbase_balance(uri, jwt)
-  data = response.json()
-  #print(data)
+  #jwt = coinbase.build_jwt(f"GET {uri}")
+  #print(jwt)
+  data = coinbase.get_coinbase_balance("api.coinbase.com/api/v3/brokerage/accounts/", coinbase.build_jwt("GET api.coinbase.com/api/v3/brokerage/accounts/")).json()
   for account in data['accounts']:
     if account['currency'] == "BTC":
-      print(account['available_balance'])
+      print(account['available_balance']['value'])
   #print(json.dumps(response))
   # Example usage:
   # coinbase = Coinbase()

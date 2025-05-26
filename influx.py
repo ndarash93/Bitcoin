@@ -16,10 +16,10 @@ class Flux:
     self.org = org
     self.token = token
 
-  def push_to_influxdb(self, confirmed, unconfirmed, price, address):
+  def push_to_influxdb(self, confirmed, unconfirmed, price, coinbase, address):
     ts = int(time.time() * 1e9)
     address_escaped = address.replace(" ", "\ ").replace(",", "\,").replace("=", "\=")
-    line = f"btc_balance,address={address_escaped} confirmed={confirmed},unconfirmed={unconfirmed},price={price} {ts}"
+    line = f"btc_balance,address={address_escaped} confirmed={confirmed},unconfirmed={unconfirmed},coinbase={coinbase},price={price} {ts}"
     
     url = f"{self.influx_url}/api/v2/write?bucket={self.bucket}&org={self.org}&precision=ns"
     headers = {

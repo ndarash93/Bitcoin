@@ -28,7 +28,12 @@ if __name__ == "__main__":
     token=TOKEN
   )
   price = coinbase.get_btc_price_usd()
+  data = coinbase.get_coinbase_balance("api.coinbase.com/api/v3/brokerage/accounts/", coinbase.build_jwt("GET api.coinbase.com/api/v3/brokerage/accounts/")).json()
+  for account in data['accounts']:
+    if account['currency'] == "BTC":
+      coinbase_wallet = account['available_balance']['value']
   addresses = electrs.findUsedAddresses()
   confirmed, unconfirmed = electrs.findBalance(addresses)
-  flux.push_to_influxdb(confirmed, unconfirmed, price, ZPUB)
+  #print(ZPUB, confirmed, unconfirmed, price, coinbase_wallet)
+  flux.push_to_influxdb(confirmed, unconfirmed, price, coinbase_wallet, ZPUB)
 
